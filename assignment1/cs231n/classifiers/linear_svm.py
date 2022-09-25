@@ -2,7 +2,6 @@ import numpy as np
 from random import shuffle
 from past.builtins import xrange
 
-#loss, grad = svm_loss_naive(W, X_dev, y_dev, 0.0)
 """
 Structured SVM loss function, naive implementation (with loops).
 
@@ -67,8 +66,6 @@ Structured SVM loss function, vectorized implementation.
 Inputs and outputs are the same as svm_loss_naive.
 """
 def svm_loss_vectorized(W, X, y, reg):
-    num_train = X.shape[0]
-    num_class = W.shape[1]
     loss = 0.0
     dW = np.zeros(W.shape) # initialize the gradient as zero
 
@@ -105,7 +102,7 @@ def svm_loss_vectorized(W, X, y, reg):
     valid_class_count[np.arange(valid_class_count.shape[0]), y] -= np.sum(valid_class_count, axis=1)
     dW = (X.T).dot(valid_class_count)
     
-    dW /= num_train
+    dW /= X.shape[0]
     dW += reg * 2 * W
   #############################################################################
   #                             END OF YOUR CODE                              #
