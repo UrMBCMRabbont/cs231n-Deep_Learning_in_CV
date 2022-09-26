@@ -74,8 +74,8 @@ class LinearClassifier(object):
           #                       END OF YOUR CODE                                #
           #########################################################################
 
-#             if verbose and it % 100 == 0:
-#                 print('iteration %d / %d: loss %f' % (it, num_iters, loss))
+            if verbose and it % 100 == 0:
+                print('iteration %d / %d: loss %f' % (it, num_iters, loss))
 
         return loss_history
     
