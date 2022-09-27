@@ -76,7 +76,15 @@ class TwoLayerNet(object):
     # Store the result in the scores variable, which should be an array of      #
     # shape (N, C).                                                             #
     #############################################################################
-    pass
+    h1 = X.dot(W1) + b1
+    h2 = np.maximum(0, h1) # ReLU
+    scores = h2.dot(W2) + b2
+
+#     print('scores.shape', scores.shape)
+#     print('Weight1.shape', W1.shape)
+#     print('Weight2.shape', W2.shape)
+#     print('bias1.shape', b1.shape)
+#     print('bias2.shape', b2.shape)
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -93,7 +101,12 @@ class TwoLayerNet(object):
     # in the variable loss, which should be a scalar. Use the Softmax           #
     # classifier loss.                                                          #
     #############################################################################
-    pass
+    softmax = np.exp(scores)/np.reshape(np.sum(np.exp(scores), axis=1), (-1, 1))
+    loss = np.sum(-np.log(softmax[np.arange(softmax.shape[0]), y]))
+    
+    loss /= N
+    loss += reg * np.sum(np.power(W1, 2))
+    loss += reg * np.sum(np.power(W2, 2))
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -105,7 +118,20 @@ class TwoLayerNet(object):
     # and biases. Store the results in the grads dictionary. For example,       #
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
-    pass
+#     h1 = X.dot(W1) + b1
+#     h2 = np.maximum(0, h1) # ReLU
+#     scores = h2.dot(W2) + b2
+
+    dW1 = (X.T).dot(softmax)
+    dW2 = (h2.T).dot(softmax)
+    print('dW1.shape', dW1.shape)
+    print('W1.shape', W1.shape)
+    print('dW2.shape', dW2.shape)
+    print('W2.shape', W2.shape)
+    dW1 += reg * 2 * W1
+    dW2 += reg * 2 * W2
+    grad['W1'] = dW1
+    grad['W2'] = dW2
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
