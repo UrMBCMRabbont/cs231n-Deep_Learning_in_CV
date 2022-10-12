@@ -27,6 +27,7 @@ def affine_forward(x, w, b):
     ###########################################################################
     x_resh = np.reshape(x, (x.shape[0], -1))
     out = x_resh.dot(w)+b
+    
 #     print("x", x.shape)
 #     print("x_resh.shape", x_resh.shape)
 #     print("weight", w.shape)
@@ -60,8 +61,8 @@ def affine_backward(dout, cache):
     ###########################################################################
     dx = dout.dot(w.T)
     dx = dx.reshape(x.shape)
-    x_resh = np.reshape(x, (w.shape[0], -1))
-    dw = (x_resh).dot(dout)
+    x_resh = x.reshape(x.shape[0], -1)
+    dw = (x_resh.T).dot(dout)
     db = dout.sum(axis=0)
     
     
