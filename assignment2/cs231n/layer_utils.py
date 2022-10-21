@@ -29,10 +29,7 @@ def affine_relu_backward(dout, cache):
     da = relu_backward(dout, relu_cache)
     dx, dw, db = affine_backward(da, fc_cache)
     return dx, dw, db
-
-def affine_norm_relu_drop_forward(x, w, b):
-    a, fc_cache = affine_forward(x, w, b)
-    
+   
 
 def conv_relu_forward(x, w, b, conv_param):
     """
