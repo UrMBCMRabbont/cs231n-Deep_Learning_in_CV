@@ -325,7 +325,6 @@ def affine_norm_relu_backward(dout, cache, use_norm, use_drop):
     if use_drop:
         dx = dropout_backward(dout, drop_cache)
     dx = relu_backward(dx, relu_cache)
-    if use_norm:
     
     
     
