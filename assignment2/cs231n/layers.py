@@ -118,10 +118,10 @@ def relu_backward(dout, cache):
     ###########################################################################
     # TODO: Implement the ReLU backward pass.                                 #
     ###########################################################################
+
     dx = dout*(x > 0)
-    
 #     print("dout.shape", dout.shape)
-#     print("x.shape", x.shape)
+#     print("x.shape", x.shape)    
 #     print("dx.shape", dx.shape)
     ###########################################################################
     #                             END OF YOUR CODE                            #
@@ -194,13 +194,13 @@ def batchnorm_forward(x, gamma, beta, bn_param):
         #######################################################################
         ux = x.mean(axis=0)
         var = x.var(axis=0) + eps
-        std = x.std(axis=0)
+        std = np.sqrt(var)
         norm_x = (x - ux)/std
         out = gamma * norm_x + beta
         
         running_mean = momentum * running_mean + (1 - momentum) * ux
         running_var = momentum * running_var + (1 - momentum) * (std**2)
-        cache = {'x':x, 'ux':ux, 'var':var, 'std':std, 'norm_x':norm_x, "momentum":momentum}
+        cache = {'x':x,'mean':ux,'var':var,'std':std,'norm_x':norm_x,'gamma':gamma,'beta':beta}
         #######################################################################
         #                           END OF YOUR CODE                          #
         #######################################################################
@@ -247,8 +247,28 @@ def batchnorm_backward(dout, cache):
     # TODO: Implement the backward pass for batch normalization. Store the    #
     # results in the dx, dgamma, and dbeta variables.                         #
     ###########################################################################
-    dbeta = np.ones(cache['norm_x'].shape)
-    dgamma = 
+    dbeta = np.sum(dout, axis=1)
+    dgamma = np.sum(dout * cache['norm_x'], axis=1)
+    
+    #     ux = x.mean(axis=0)
+    #     var = x.var(axis=0) + eps
+    #     std = np.sqrt(var)
+    #     norm_x = (x - ux)/std
+    #     out = gamma * norm_x + beta
+    n = dout.shape[0]
+    df_dnorm = dout * cache['gamma']                                          #[NxD]
+    # var = Sigma[(x - ux)^2/n]
+    dv_dx = (2/n) * (cache['x'] - cache['mean'])                              #[NxD]
+    dv_du = (-2/n) * np.sum(cache['x'] - cache['mean'], axis=0)               #[1xD]
+    du_dx = 1/n                                                               #[NxD]
+    # norm_x = (x-ux)/std
+    dnorm_dx = 1/cache['std']                                                 #[NxD]
+    dnorm_du = -1/cache['std']                                                #[1xD]
+    # dnorm/dv = d(v^(-0.5))/dv
+    dnorm_dv = (-0.5) * (cache['var']**(-1.5)) * (cache['x'] - cache['mean']) #[NxD]
+    
+    dx = df_dnorm*dnorm_dx + np.sum(df_dnorm*dnorm_du, axis=0)*du_dx + np.sum(df_dnorm*dnorm_dv, axis=0)*(dv_du*du_dx+dv_dx)
+
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
