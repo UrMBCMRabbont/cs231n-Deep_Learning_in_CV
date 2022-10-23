@@ -247,14 +247,15 @@ def batchnorm_backward(dout, cache):
     # TODO: Implement the backward pass for batch normalization. Store the    #
     # results in the dx, dgamma, and dbeta variables.                         #
     ###########################################################################
-    dbeta = np.sum(dout, axis=1)
-    dgamma = np.sum(dout * cache['norm_x'], axis=1)
+    dbeta = np.sum(dout, axis=0)
+    dgamma = np.sum(dout * cache['norm_x'], axis=0)
     
     #     ux = x.mean(axis=0)
     #     var = x.var(axis=0) + eps
     #     std = np.sqrt(var)
     #     norm_x = (x - ux)/std
     #     out = gamma * norm_x + beta
+
     n = dout.shape[0]
     df_dnorm = dout * cache['gamma']                                          #[NxD]
     # var = Sigma[(x - ux)^2/n]
@@ -268,7 +269,6 @@ def batchnorm_backward(dout, cache):
     dnorm_dv = (-0.5) * (cache['var']**(-1.5)) * (cache['x'] - cache['mean']) #[NxD]
     
     dx = df_dnorm*dnorm_dx + np.sum(df_dnorm*dnorm_du, axis=0)*du_dx + np.sum(df_dnorm*dnorm_dv, axis=0)*(dv_du*du_dx+dv_dx)
-
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -298,7 +298,15 @@ def batchnorm_backward_alt(dout, cache):
     # should be able to compute gradients with respect to the inputs in a     #
     # single statement; our implementation fits on a single 80-character line.#
     ###########################################################################
-    pass
+    dbeta = dout.sum(axis=0)
+    dgamma = np.sum(dout * cache['norm_x'], axis=0)
+
+    n = dout.shape[0]
+    norm_x = cache['norm_x']
+    df_dnorm = dout * cache['gamma']                                                  #[NxD]
+    df_dnorm_sum = np.sum(df_dnorm,axis=0)                                            #[1xD]
+    dx = df_dnorm - df_dnorm_sum/n - np.sum(df_dnorm * norm_x,axis=0) * norm_x/n      #[NxD]
+    dx /= cache['std']
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################

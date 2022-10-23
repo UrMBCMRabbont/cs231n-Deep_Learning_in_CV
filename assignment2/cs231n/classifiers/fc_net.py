@@ -184,10 +184,10 @@ class FullyConnectedNet(object):
         for i in range(self.num_layers):
             self.params['W'+str(i+1)] = weight_scale * np.random.randn(dims[i], dims[i+1])
             self.params['b'+str(i+1)] = np.zeros(dims[i+1])
-            
         if(self.use_batchnorm):
-            self.params['gamma'+str(i+1)] = np.ones(dims[i+1])
-            self.params['beta'+str(i+1)] = np.zeros(dims[i+1])
+            for i in range(self.num_layers-1):                
+                self.params['gamma'+str(i+1)] = np.ones(dims[i+1])
+                self.params['beta'+str(i+1)] = np.zeros(dims[i+1])
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
@@ -252,7 +252,7 @@ class FullyConnectedNet(object):
         for i in range(self.num_layers-1):
             w = self.params['W'+str(i+1)]
             b = self.params['b'+str(i+1)]
-            if(self.use_batchnorm):
+            if self.use_batchnorm != False:
                 gamma = self.params['gamma'+str(i+1)]
                 beta = self.params['beta'+str(i+1)]
                 bn_params = self.bn_params[i]
@@ -330,7 +330,7 @@ def affine_norm_relu_backward(dout, cache, use_norm, use_drop):
         dout = dropout_backward(dout, drop_cache)
     dout = relu_backward(dout, relu_cache)
     if use_norm:
-        dout, dgamma, dbeta = batchnorm_backward(dx, bn_cache)
+        dout, dgamma, dbeta = batchnorm_backward(dout, bn_cache)
     dout, dw, db = affine_backward(dout, fc_cache)
     dx = dout
     return dx, dw, db, dgamma, dbeta

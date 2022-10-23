@@ -120,7 +120,7 @@ def adam(x, dx, config=None):
     - beta2: Decay rate for moving average of second moment of gradient.
     - epsilon: Small scalar used for smoothing to avoid dividing by zero.
     - m: Moving average of gradient.
-    - v: Moving average of squared gradient.
+    - v: Moving average of squared gradient. --> E(m^2)
     - t: Iteration number.
     """
     if config is None: config = {}
@@ -138,11 +138,18 @@ def adam(x, dx, config=None):
     # the next_x variable. Don't forget to update the m, v, and t variables   #
     # stored in config.                                                       #
     ###########################################################################
-    first = config['beta1']*first + (1-config['beta1'])*dx
-    second = config['beta2']*second + (1-config['beta2'])*dx*dx
-    first_unbias = first/(1 - (beta1)**t)
-    second_unbias  = second/(1 - (beta2)**t)
-    next_x = x - (config['learning_rate']*first_unbias / (np.sqrt(second_bias)+config['epsilon']))
+    t = config['t']
+    m = config['m']
+    v = config['v']
+    beta1, beta2 = config['beta1'], config['beta2']
+    t += 1
+    m = beta1*m + (1-beta1)*dx
+    v = beta2*v + (1-beta2)*dx*dx
+    m_biascor = m/(1 - (beta1)**t)
+    v_biascor = v/(1 - (beta2)**t)
+    next_x = x - (config['learning_rate']*m_biascor / (np.sqrt(v_biascor)+config['epsilon']))
+    
+    config['m'], config['v'], config['t'] = m, v, t
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
