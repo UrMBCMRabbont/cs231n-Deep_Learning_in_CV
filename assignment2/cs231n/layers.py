@@ -418,7 +418,33 @@ def conv_forward_naive(x, w, b, conv_param):
     # TODO: Implement the convolutional forward pass.                         #
     # Hint: you can use the function np.pad for padding.                      #
     ###########################################################################
-    pass
+    pad = conv_param['pad']
+    stride = conv_param['stride']
+    N, C, H, W = x.shape
+    # F spatial extend
+    # C channel
+    F, C, HH, WW = w.shape
+#     print("size info: \n", N, C, H, W)
+#     print("size info: \n", F, C, HH, WW)
+    # create output 
+    Hout = int((H + 2*pad - HH)/stride + 1) ## height
+    Wout = int((W + 2*pad - WW)/stride + 1) ## width
+    out = np.zeros((N, F, Hout, Wout)) 
+    # padding 
+    xpad = np.pad(x, ((0,0), (0,0), (pad,pad), (pad,pad)), 'constant')
+    Hpad, Wpad = xpad.shape[2], xpad.shape[3]
+    # weight row formation
+    w_row = w.reshape(F, C*HH*WW)
+    # x column formation
+    x_col = np.zeros((C*HH*WW, Hout*Wout))
+    
+    for index in range(N):
+        neuron = 0 
+        for i in range(0, Hpad-HH+1, stride):
+            for j in range(0, Wpad-WW+1,stride):
+                x_col[:,neuron] = xpad[index,:,i:i+HH,j:j+WW].reshape(C*HH*WW)
+                neuron += 1
+        out[index] = (w_row.dot(x_col) + b.reshape(F,1)).reshape(F, Hout, Wout)
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
