@@ -137,7 +137,31 @@ class CaptioningRNN(object):
         # defined above to store loss and gradients; grads[k] should give the      #
         # gradients for self.params[k].                                            #
         ############################################################################
-        pass
+        N, D = features.shape
+        H = W_proj.shape[1]
+        T = captions_in.shape[1]
+
+        #loss
+        h0 = features.dot(W_proj) + b_proj                                         #[N*H]
+        x, cache_word = word_embedding_forward(captions_in, W_embed)               #[N*T*W]
+        
+        if self.cell_type == 'rnn':
+            hh, cache_h = rnn_forward(x, h0, Wx, Wh, b)                            #[N*T*H]
+            
+        out, cache_final = temporal_affine_forward(hh, W_vocab, b_vocab)           #[N*T*V]
+        loss, dout = temporal_softmax_loss(out, captions_out, mask, verbose=False)
+        
+        #gradient
+        dhh, dW_vocab, db_vocab = temporal_affine_backward(dout, cache_final)
+        
+        if self.cell_type == 'rnn':
+            dx, dh0, dWx, dWh, db = rnn_backward(dhh, cache_h)
+        dW_embed = word_embedding_backward(dx, cache_word)
+        dW_proj = features.T.dot(dh0)
+        db_proj = dh0.sum(axis=0)
+        
+        grads = {"W_vocab":dW_vocab, 'b_vocab':db_vocab, 'Wx':dWx, 'Wh':dWh, 
+                 'b':db, 'W_embed':dW_embed, 'W_proj':dW_proj, 'b_proj':db_proj}
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################

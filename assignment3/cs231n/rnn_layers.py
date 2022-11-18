@@ -167,12 +167,6 @@ def rnn_backward(dh, cache):
         dWx += dWxtmp # 3, 5
         dWh += dWhtmp # 5, 5
         db += dbtmp # 5
-
-#         print(dxtmp.shape)
-#         print(dprev_htmp.shape)
-#         print(dWxtmp.shape)
-#         print(dWhtmp.shape)
-#         print(dbtmp.shape)
         
     dh0 = dprev_htmp
 #     print("dx.shape", dx.shape)
@@ -206,7 +200,12 @@ def word_embedding_forward(x, W):
     #                                                                            #
     # HINT: This can be done in one line using NumPy's array indexing.           #
     ##############################################################################
-    pass
+    out = W[x]
+    cache = (x, W)
+    
+#     print(W, "\n")
+#     print(x)
+#     print(out)
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
@@ -235,7 +234,12 @@ def word_embedding_backward(dout, cache):
     # Note that Words can appear more than once in a sequence.                   #
     # HINT: Look up the function np.add.at                                       #
     ##############################################################################
-    pass
+    N, T, D = dout.shape
+    x , W = cache
+    V = W.shape[0]
+
+    dW = np.zeros((V, D))
+    np.add.at(dW, x, dout)
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
