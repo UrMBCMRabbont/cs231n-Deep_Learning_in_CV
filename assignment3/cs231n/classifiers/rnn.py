@@ -223,7 +223,24 @@ class CaptioningRNN(object):
         # functions; you'll need to call rnn_step_forward or lstm_step_forward in #
         # a loop.                                                                 #
         ###########################################################################
-        pass
+        h0 = features.dot(W_proj) + b_proj
+        V, W = W_embed.shape
+        x = np.ones((N, W))*W_embed[self._start]
+        for i in range(max_length):
+            if self.cell_type == 'rnn':
+                next_h, _ = rnn_step_forward(x, h0, Wx, Wh, b)
+            else:
+                pass
+            out = next_h.dot(W_vocab) + b_vocab
+            max_idx = out.argmax(axis=1)
+            captions[:,i] = max_idx
+            x = W_embed[max_idx]
+            h0 = next_h
+
+#         print("V, W: ", V, W) 
+#         print(x.shape)
+#         print(max_idx)
+#         print(W_embed.shape)
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
