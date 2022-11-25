@@ -5,7 +5,8 @@ from builtins import range
 import urllib.request, urllib.error, urllib.parse, os, tempfile
 
 import numpy as np
-# from scipy.misc import imread, imresize
+from scipy.misc import imresize
+# from skimage.transform import resize
 from imageio import imread
 
 """
